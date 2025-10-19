@@ -428,19 +428,12 @@ def get_bifurcation_plot_points(pops):
     -------
     DataFrame
     """
-    # create a new DataFrame to contain our xy points
-    xy_points = pd.DataFrame(columns=["x", "y"])
-
-    # for each column in the populations DataFrame
-    for rate in pops.columns:
-        # append the growth rate as the x column and all the population values
-        # as the y column
-        to_append = pd.DataFrame({"x": rate, "y": pops[rate]})
-        xy_points = pd.concat([xy_points, to_append])
-
-    # reset the index and drop old index before returning the xy point data
-    xy_points = xy_points.reset_index().drop(labels="index", axis=1)
-    return xy_points
+    # Stack the DataFrame to convert columns to rows, then reset index
+    xy_points = pops.stack().reset_index()
+    xy_points.columns = ['gen', 'x', 'y']  # intermediate columns
+    
+    # Keep only the x (rate) and y (population) columns
+    return xy_points[['x', 'y']]
 
 
 def bifurcation_plot(
